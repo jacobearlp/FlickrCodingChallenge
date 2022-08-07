@@ -48,6 +48,7 @@ final class PhotoListViewModel: ObservableObject, PhotoListViewModelOutputs, Pho
     }
     
     public func onAppear() {
+        displayLatestPhoto()
         onAppearSubject.send(())
     }
     
@@ -156,5 +157,19 @@ final class PhotoListViewModel: ObservableObject, PhotoListViewModelOutputs, Pho
     
     private func fetchLikedPhotoIds() -> [String] {
         apiService.getLikedPhotos().map { $0.id }
+    }
+    
+    private func displayLatestPhoto() {
+        let likedPhotoIds = fetchLikedPhotoIds()
+        var newPhotos = [FlickrPhoto]()
+        for photo in photos {
+            if !newPhotos.contains(where: { $0.id == photo.id }) {
+                var updatedPhoto = photo
+                updatedPhoto.isfavorite = likedPhotoIds.contains(photo.id)
+                newPhotos.append(updatedPhoto)
+            }
+        }
+        
+        photos = newPhotos
     }
 }
